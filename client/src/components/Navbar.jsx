@@ -43,6 +43,15 @@ const Navbar = () => {
             >
               My History
             </NavLink>
+            {/* --- NEW LINK ADDED --- */}
+            <NavLink 
+              to="/sync" 
+              className={({ isActive }) => 
+                `px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-300 hover:text-emerald-500'}`
+              }
+            >
+              Sync Devices
+            </NavLink>
             <ThemeToggle />
           </div>
 
@@ -56,13 +65,11 @@ const Navbar = () => {
               aria-expanded={isMobileMenuOpen}
             >
               <span className="sr-only">Open main menu</span>
-              {/* Hamburger Icon */}
               {!isMobileMenuOpen ? (
                 <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               ) : (
-              // Close Icon
                 <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -81,6 +88,10 @@ const Navbar = () => {
             </NavLink>
             <NavLink to="/history" onClick={closeMobileMenu} className={({isActive}) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-slate-900 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
               My History
+            </NavLink>
+            {/* --- NEW LINK ADDED --- */}
+            <NavLink to="/sync" onClick={closeMobileMenu} className={({isActive}) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-slate-900 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
+              Sync Devices
             </NavLink>
           </div>
         </div>
