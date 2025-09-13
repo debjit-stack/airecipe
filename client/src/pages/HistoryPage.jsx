@@ -1,34 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { generateRecipe } from '../api/recipeService';
-import RecipeCard from '../components/RecipeCard';
-import { toast, Toaster } from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import { generateRecipe } from "../api/recipeService";
+import RecipeCard from "../components/RecipeCard";
+import { toast, Toaster } from "react-hot-toast";
 
 const HomePage = () => {
-  const [ingredients, setIngredients] = useState('');
-  const [diet, setDiet] = useState('any');
-  const [preferences, setPreferences] = useState('');
+  const [ingredients, setIngredients] = useState("");
+  const [preferences, setPreferences] = useState("");
+  const [diet, setDiet] = useState("any"); // State for the diet dropdown
   const [recipe, setRecipe] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    const id = localStorage.getItem('recipeRemixerUserId');
-    setUserId(id);
+    // Get the user ID from local storage when the component mounts
+    const storedUserId = localStorage.getItem("recipeRemixerUserId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
   }, []);
+
 
   const handleGenerateRecipe = async (e) => {
     e.preventDefault();
     if (!ingredients) {
-      toast.error('Please enter some ingredients.');
+      toast.error("Please enter some ingredients.");
       return;
     }
-    setError('');
+
+    setError("");
     setRecipe(null);
     setIsLoading(true);
-
-    const ingredientsArray = ingredients.split(',').map(item => item.trim());
     const loadingToast = toast.loading('Remixing your recipe...');
+
+    const ingredientsArray = ingredients.split(",").map((item) => item.trim());
 
     try {
       const data = await generateRecipe(ingredientsArray, preferences, diet);
@@ -65,7 +70,6 @@ const HomePage = () => {
             </p>
           </header>
 
-          {/* Input Form */}
           <form onSubmit={handleGenerateRecipe} className="bg-slate-100 dark:bg-slate-700 p-6 rounded-lg shadow-lg mb-8 transition-colors duration-300">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
@@ -77,7 +81,7 @@ const HomePage = () => {
                   id="ingredients"
                   value={ingredients}
                   onChange={(e) => setIngredients(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-colors duration-300"
+                  className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   placeholder="e.g., chicken breast, broccoli, garlic"
                   required
                 />
@@ -90,7 +94,7 @@ const HomePage = () => {
                   id="diet"
                   value={diet}
                   onChange={(e) => setDiet(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-colors duration-300"
+                  className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 >
                   <option value="any">Any</option>
                   <option value="vegetarian">Vegetarian</option>
@@ -99,18 +103,18 @@ const HomePage = () => {
               </div>
             </div>
              <div className="mb-4">
-                <label htmlFor="preferences" className="block text-slate-600 dark:text-slate-300 font-medium mb-2">
-                  Other Preferences (optional)
-                </label>
-                <input
-                  type="text"
-                  id="preferences"
-                  value={preferences}
-                  onChange={(e) => setPreferences(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-colors duration-300"
-                  placeholder="e.g., spicy, Italian, quick and easy"
-                />
-              </div>
+              <label htmlFor="preferences" className="block text-slate-600 dark:text-slate-300 font-medium mb-2">
+                Other Preferences (optional)
+              </label>
+              <input
+                type="text"
+                id="preferences"
+                value={preferences}
+                onChange={(e) => setPreferences(e.target.value)}
+                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                placeholder="e.g., spicy, gluten-free, Italian"
+              />
+            </div>
             <button
               type="submit"
               disabled={isLoading}
@@ -120,10 +124,17 @@ const HomePage = () => {
             </button>
           </form>
 
-          {/* Display Area */}
           <div className="mt-8">
-            {error && <p className="text-center text-red-400 bg-red-900/50 p-4 rounded-md">{`Error: ${error}`}</p>}
-            {recipe && <RecipeCard recipe={recipe} userId={userId} />}
+            {error && !isLoading && <p className="text-center text-red-400 bg-red-900/50 p-4 rounded-md">{`Error: ${error}`}</p>}
+            
+            {isLoading && (
+              <div className="text-center text-lg text-slate-500 dark:text-slate-400">
+                <p>Asking the AI chef, please wait...</p>
+                {/* Optional: Add a spinner component here */}
+              </div>
+            )}
+            
+            {recipe && <RecipeCard recipe={recipe} userId={userId} showSaveButton={true} />}
           </div>
         </div>
       </div>
@@ -132,3 +143,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+

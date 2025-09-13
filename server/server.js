@@ -13,7 +13,8 @@ const app = express();
 
 // Middleware
 app.use(cors()); // Allows requests from our frontend on a different port
-app.use(express.json()); // Allows our server to accept JSON data in the request body
+//app.use(express.json()); // Allows our server to accept JSON data in the request body
+app.use(express.json({ limit: '50mb' }));
 
 // --- API Routes ---
 // This tells the app that any request starting with '/api/recipe'
