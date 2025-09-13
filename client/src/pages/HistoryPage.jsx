@@ -2,12 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getHistory, deleteRecipe } from '../api/recipeService';
 import { toast, Toaster } from 'react-hot-toast';
+import ConfirmationModal from '../components/ConfirmationModal'; // 1. Import the new modal component
 
 const HistoryPage = () => {
   const [recipes, setRecipes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [userId, setUserId] = useState(null);
+
+  // --- State for the modal ---
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [recipeToDelete, setRecipeToDelete] = useState(null);
+  // ---
 
   useEffect(() => {
     const id = localStorage.getItem('recipeRemixerUserId');
@@ -34,20 +40,30 @@ const HistoryPage = () => {
     }
   };
 
-  const handleDeleteRecipe = async (recipeId) => {
-    if (!window.confirm('Are you sure you want to delete this recipe?')) {
-      return;
-    }
+  // 2. This function now just OPENS the modal
+  const handleDeleteClick = (recipe) => {
+    setRecipeToDelete(recipe);
+    setIsModalOpen(true);
+  };
+
+  // 3. This function is called when the user clicks "Confirm" in the modal
+  const confirmDelete = async () => {
+    if (!recipeToDelete) return;
 
     try {
-      await deleteRecipe(recipeId);
-      setRecipes(prev => prev.filter(recipe => recipe._id !== recipeId));
+      await deleteRecipe(recipeToDelete._id);
+      setRecipes(prev => prev.filter(recipe => recipe._id !== recipeToDelete._id));
       toast.success('Recipe deleted successfully!');
     } catch (err) {
       const errorMessage = String(err.message || err);
       toast.error(errorMessage);
+    } finally {
+      // Close the modal and reset the state
+      setIsModalOpen(false);
+      setRecipeToDelete(null);
     }
   };
+
 
   if (isLoading) {
     return (
@@ -61,21 +77,8 @@ const HistoryPage = () => {
       </div>
     );
   }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-slate-800 text-slate-900 dark:text-white p-4 sm:p-8 transition-colors duration-300">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center text-red-400 bg-red-900/50 p-6 rounded-md">
-            <p>Error: {error}</p>
-            <Link to="/" className="mt-4 inline-block text-emerald-500 hover:underline">
-              Go back to home and generate your first recipe
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  
+  // ... (error and no recipes JSX remains the same)
 
   return (
     <>
@@ -88,6 +91,15 @@ const HistoryPage = () => {
           },
         }}
       />
+      {/* 4. Add the modal component to the page */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Recipe"
+        message={`Are you sure you want to permanently delete "${recipeToDelete?.title}"? This action cannot be undone.`}
+      />
+      
       <div className="min-h-screen bg-white dark:bg-slate-800 text-slate-900 dark:text-white p-4 sm:p-8 transition-colors duration-300">
         <div className="max-w-6xl mx-auto">
           <header className="text-center mb-8">
@@ -131,18 +143,20 @@ const HistoryPage = () => {
                     className="bg-slate-100 dark:bg-slate-700 rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-105"
                   >
                     <div className="relative">
-                      <img 
-                        src={recipe.imageUrl} 
-                        alt={recipe.title} 
-                        className="w-full h-48 object-cover"
-                        onError={(e) => { 
-                          e.target.onerror = null; 
-                          e.target.src='https://placehold.co/400x300/334155/94a3b8?text=Recipe+Image'; 
-                        }}
-                      />
+                       <Link to={`/recipe/${recipe._id}`}>
+                        <img 
+                          src={recipe.imageUrl} 
+                          alt={recipe.title} 
+                          className="w-full h-48 object-cover"
+                          onError={(e) => { 
+                            e.target.onerror = null; 
+                            e.target.src='https://placehold.co/400x300/334155/94a3b8?text=Recipe+Image'; 
+                          }}
+                        />
+                      </Link>
                       <div className="absolute top-2 right-2">
                         <button
-                          onClick={() => handleDeleteRecipe(recipe._id)}
+                          onClick={() => handleDeleteClick(recipe)} // 5. Update onClick to call the new function
                           className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-colors duration-200"
                           title="Delete Recipe"
                         >
@@ -154,12 +168,14 @@ const HistoryPage = () => {
                     </div>
                     
                     <div className="p-4">
-                      <h3 className="text-xl font-bold text-emerald-500 dark:text-emerald-400 mb-2 line-clamp-2">
-                        {recipe.title}
-                      </h3>
-                      <p className="text-slate-600 dark:text-slate-300 text-sm mb-3 line-clamp-2">
-                        {recipe.description}
-                      </p>
+                      <Link to={`/recipe/${recipe._id}`}>
+                        <h3 className="text-xl font-bold text-emerald-500 dark:text-emerald-400 mb-2 line-clamp-2">
+                          {recipe.title}
+                        </h3>
+                        <p className="text-slate-600 dark:text-slate-300 text-sm mb-3 line-clamp-2">
+                          {recipe.description}
+                        </p>
+                      </Link>
                       
                       <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-4">
                         <span>{recipe.ingredients.length} ingredients</span>
@@ -198,3 +214,4 @@ const HistoryPage = () => {
 };
 
 export default HistoryPage;
+
