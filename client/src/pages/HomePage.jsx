@@ -23,15 +23,23 @@ const HomePage = () => {
       toast.error('Please enter some ingredients.');
       return;
     }
+    
     setError('');
     setRecipe(null);
     setIsLoading(true);
 
-    const ingredientsArray = ingredients.split(',').map(item => item.trim());
+    const ingredientsArray = ingredients.split(',').map(item => item.trim()).filter(item => item.length > 0);
+    
+    if (ingredientsArray.length === 0) {
+      toast.error('Please enter valid ingredients.');
+      setIsLoading(false);
+      return;
+    }
+
     const loadingToast = toast.loading('Remixing your recipe...');
 
     try {
-      const data = await generateRecipe(ingredientsArray, preferences, diet);
+      const data = await generateRecipe(ingredientsArray, preferences, diet === 'any' ? '' : diet);
       setRecipe(data);
       toast.success('Your recipe is ready!', { id: loadingToast });
     } catch (err) {
@@ -98,23 +106,23 @@ const HomePage = () => {
                 </select>
               </div>
             </div>
-             <div className="mb-4">
-                <label htmlFor="preferences" className="block text-slate-600 dark:text-slate-300 font-medium mb-2">
-                  Other Preferences (optional)
-                </label>
-                <input
-                  type="text"
-                  id="preferences"
-                  value={preferences}
-                  onChange={(e) => setPreferences(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-colors duration-300"
-                  placeholder="e.g., spicy, Italian, quick and easy"
-                />
-              </div>
+            <div className="mb-4">
+              <label htmlFor="preferences" className="block text-slate-600 dark:text-slate-300 font-medium mb-2">
+                Other Preferences (optional)
+              </label>
+              <input
+                type="text"
+                id="preferences"
+                value={preferences}
+                onChange={(e) => setPreferences(e.target.value)}
+                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-colors duration-300"
+                placeholder="e.g., spicy, Italian, quick and easy"
+              />
+            </div>
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-md transition-transform duration-200 hover:scale-105 active:scale-100 disabled:bg-slate-500 disabled:cursor-not-allowed"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-md transition-transform duration-200 hover:scale-105 active:scale-100 disabled:bg-slate-500 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isLoading ? 'Remixing...' : 'Remix my Recipe!'}
             </button>
@@ -122,8 +130,22 @@ const HomePage = () => {
 
           {/* Display Area */}
           <div className="mt-8">
-            {error && <p className="text-center text-red-400 bg-red-900/50 p-4 rounded-md">{`Error: ${error}`}</p>}
-            {recipe && <RecipeCard recipe={recipe} userId={userId} />}
+            {error && !isLoading && (
+              <div className="text-center text-red-400 bg-red-900/50 p-4 rounded-md mb-6">
+                <p>Error: {error}</p>
+              </div>
+            )}
+            
+            {isLoading && (
+              <div className="text-center text-lg text-slate-500 dark:text-slate-400 py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+                <p>Asking the AI chef, please wait...</p>
+              </div>
+            )}
+            
+            {recipe && !isLoading && (
+              <RecipeCard recipe={recipe} userId={userId} showSaveButton={true} />
+            )}
           </div>
         </div>
       </div>
