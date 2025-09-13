@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateRecipe } from '../api/recipeService';
 import RecipeCard from '../components/RecipeCard';
 import { toast, Toaster } from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion'; // 1. Import animation components
 
 const HomePage = () => {
   const [ingredients, setIngredients] = useState('');
@@ -143,9 +144,19 @@ const HomePage = () => {
               </div>
             )}
             
-            {recipe && !isLoading && (
-              <RecipeCard recipe={recipe} userId={userId} showSaveButton={true} />
-            )}
+            {/* 2. Wrap the RecipeCard with animation components */}
+            <AnimatePresence>
+              {recipe && !isLoading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <RecipeCard recipe={recipe} userId={userId} showSaveButton={true} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -154,3 +165,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+

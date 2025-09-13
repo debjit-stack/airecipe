@@ -2,18 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getHistory, deleteRecipe } from '../api/recipeService';
 import { toast, Toaster } from 'react-hot-toast';
-import ConfirmationModal from '../components/ConfirmationModal'; // 1. Import the new modal component
+import ConfirmationModal from '../components/ConfirmationModal';
+import { motion } from 'framer-motion'; // 1. Import motion
 
 const HistoryPage = () => {
   const [recipes, setRecipes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [userId, setUserId] = useState(null);
-
-  // --- State for the modal ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recipeToDelete, setRecipeToDelete] = useState(null);
-  // ---
 
   useEffect(() => {
     const id = localStorage.getItem('recipeRemixerUserId');
@@ -40,13 +38,11 @@ const HistoryPage = () => {
     }
   };
 
-  // 2. This function now just OPENS the modal
   const handleDeleteClick = (recipe) => {
     setRecipeToDelete(recipe);
     setIsModalOpen(true);
   };
 
-  // 3. This function is called when the user clicks "Confirm" in the modal
   const confirmDelete = async () => {
     if (!recipeToDelete) return;
 
@@ -58,16 +54,35 @@ const HistoryPage = () => {
       const errorMessage = String(err.message || err);
       toast.error(errorMessage);
     } finally {
-      // Close the modal and reset the state
       setIsModalOpen(false);
       setRecipeToDelete(null);
     }
   };
+  
+  // --- Animation Variants ---
+  // 2. Define animation variants for the container and its items
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1, // This makes each child animate 0.1s after the previous one
+      },
+    },
+  };
 
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+    },
+  };
+  // ---
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-800 text-slate-900 dark:text-white p-4 sm:p-8 transition-colors duration-300">
+      <div className="min-h-screen bg-white dark:bg-slate-800 p-4 sm:p-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
@@ -77,8 +92,6 @@ const HistoryPage = () => {
       </div>
     );
   }
-  
-  // ... (error and no recipes JSX remains the same)
 
   return (
     <>
@@ -91,7 +104,6 @@ const HistoryPage = () => {
           },
         }}
       />
-      {/* 4. Add the modal component to the page */}
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -112,22 +124,24 @@ const HistoryPage = () => {
           </header>
 
           {recipes.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="bg-slate-100 dark:bg-slate-700 rounded-lg p-8 max-w-md mx-auto">
-                <h2 className="text-2xl font-semibold text-slate-600 dark:text-slate-300 mb-4">
-                  No Recipes Yet
-                </h2>
-                <p className="text-slate-500 dark:text-slate-400 mb-6">
-                  You haven't saved any recipes yet. Start by generating your first recipe!
-                </p>
-                <Link 
-                  to="/" 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-md transition-transform duration-200 hover:scale-105 active:scale-100"
-                >
-                  Generate My First Recipe
-                </Link>
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+              <div className="text-center py-12">
+                <div className="bg-slate-100 dark:bg-slate-700 rounded-lg p-8 max-w-md mx-auto">
+                  <h2 className="text-2xl font-semibold text-slate-600 dark:text-slate-300 mb-4">
+                    No Recipes Yet
+                  </h2>
+                  <p className="text-slate-500 dark:text-slate-400 mb-6">
+                    You haven't saved any recipes yet. Start by generating your first recipe!
+                  </p>
+                  <Link 
+                    to="/" 
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-md transition-transform duration-200 hover:scale-105 active:scale-100"
+                  >
+                    Generate My First Recipe
+                  </Link>
+                </div>
               </div>
-            </div>
+            </motion.div>
           ) : (
             <>
               <div className="mb-6 text-center">
@@ -136,10 +150,18 @@ const HistoryPage = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* 3. Apply the animation variants to the grid container */}
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
                 {recipes.map((recipe) => (
-                  <div 
+                  // 4. Apply the item animation to each card
+                  <motion.div 
                     key={recipe._id} 
+                    variants={itemVariants}
                     className="bg-slate-100 dark:bg-slate-700 rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-105"
                   >
                     <div className="relative">
@@ -156,11 +178,11 @@ const HistoryPage = () => {
                       </Link>
                       <div className="absolute top-2 right-2">
                         <button
-                          onClick={() => handleDeleteClick(recipe)} // 5. Update onClick to call the new function
+                          onClick={() => handleDeleteClick(recipe)}
                           className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-colors duration-200"
                           title="Delete Recipe"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                         </button>
@@ -183,7 +205,7 @@ const HistoryPage = () => {
                       </div>
 
                       {recipe.userInput && (
-                        <div className="mb-4 text-xs">
+                         <div className="mb-4 text-xs">
                           <p className="text-slate-500 dark:text-slate-400">
                             <span className="font-medium">Original ingredients:</span> {recipe.userInput.originalIngredients?.join(', ') || 'N/A'}
                           </p>
@@ -202,9 +224,9 @@ const HistoryPage = () => {
                         View Full Recipe
                       </Link>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </>
           )}
         </div>
