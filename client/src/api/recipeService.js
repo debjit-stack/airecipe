@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-// Use environment variables for the API URL, with a fallback for local development
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/recipe';
+
+const getAuthHeader = () => {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 const generateRecipe = async (ingredients, preferences, diet) => {
   try {
@@ -19,7 +23,9 @@ const generateRecipe = async (ingredients, preferences, diet) => {
 
 const saveRecipe = async (recipeData) => {
   try {
-    const response = await axios.post(`${API_URL}/save`, recipeData);
+    const response = await axios.post(`${API_URL}/save`, recipeData, {
+      headers: getAuthHeader()
+    });
     return response.data;
   } catch (error) {
     console.error('Error saving recipe:', error);
@@ -27,9 +33,11 @@ const saveRecipe = async (recipeData) => {
   }
 };
 
-const getHistory = async (userId) => {
+const getHistory = async () => {
   try {
-    const response = await axios.get(`${API_URL}/history/${userId}`);
+    const response = await axios.get(`${API_URL}/history`, {
+      headers: getAuthHeader()
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching history:', error);
@@ -39,7 +47,9 @@ const getHistory = async (userId) => {
 
 const deleteRecipe = async (recipeId) => {
   try {
-    const response = await axios.delete(`${API_URL}/${recipeId}`);
+    const response = await axios.delete(`${API_URL}/${recipeId}`, {
+      headers: getAuthHeader()
+    });
     return response.data;
   } catch (error) {
     console.error('Error deleting recipe:', error);
@@ -49,14 +59,15 @@ const deleteRecipe = async (recipeId) => {
 
 const getRecipeById = async (recipeId) => {
   try {
-    const response = await axios.get(`${API_URL}/${recipeId}`);
+    const response = await axios.get(`${API_URL}/${recipeId}`, {
+      headers: getAuthHeader()
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching recipe by ID:', error);
     throw error.response?.data?.message || 'An unexpected error occurred while fetching the recipe.';
   }
 };
-
 
 export { 
   generateRecipe, 

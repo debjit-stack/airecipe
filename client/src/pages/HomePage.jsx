@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { generateRecipe } from '../api/recipeService';
 import RecipeCard from '../components/RecipeCard';
 import { toast, Toaster } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion'; // 1. Import animation components
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 const HomePage = () => {
   const [ingredients, setIngredients] = useState('');
@@ -11,12 +12,7 @@ const HomePage = () => {
   const [recipe, setRecipe] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [userId, setUserId] = useState(null);
-
-  useEffect(() => {
-    const id = localStorage.getItem('recipeRemixerUserId');
-    setUserId(id);
-  }, []);
+  const { isAuthenticated } = useAuth();
 
   const handleGenerateRecipe = async (e) => {
     e.preventDefault();
@@ -58,7 +54,7 @@ const HomePage = () => {
         position="top-center" 
         toastOptions={{
           style: {
-            background: '#334155', // slate-700
+            background: '#334155',
             color: '#fff',
           },
         }}
@@ -72,6 +68,13 @@ const HomePage = () => {
             <p className="text-slate-500 dark:text-slate-400 mt-2">
               Turn your pantry into a cookbook. Let the AI chef work its magic!
             </p>
+            {!isAuthenticated && (
+              <div className="mt-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                <p className="text-emerald-700 dark:text-emerald-300 text-sm">
+                  💡 <strong>Tip:</strong> Sign up or log in to save your favorite recipes and access them from any device!
+                </p>
+              </div>
+            )}
           </header>
 
           {/* Input Form */}
@@ -144,7 +147,6 @@ const HomePage = () => {
               </div>
             )}
             
-            {/* 2. Wrap the RecipeCard with animation components */}
             <AnimatePresence>
               {recipe && !isLoading && (
                 <motion.div
@@ -153,7 +155,10 @@ const HomePage = () => {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <RecipeCard recipe={recipe} userId={userId} showSaveButton={true} />
+                  <RecipeCard 
+                    recipe={recipe} 
+                    showSaveButton={isAuthenticated} 
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -165,4 +170,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-

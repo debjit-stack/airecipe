@@ -2,26 +2,23 @@ import React from 'react';
 import { saveRecipe } from '../api/recipeService';
 import { toast } from 'react-hot-toast';
 
-const RecipeCard = ({ recipe, userId, showSaveButton = false }) => {
+const RecipeCard = ({ recipe, showSaveButton = false }) => {
   
   const handleSave = async () => {
     try {
-      const payload = { ...recipe, userId };
-      await saveRecipe(payload);
+      await saveRecipe(recipe);
       toast.success('Recipe saved to your history!');
     } catch (error) {
-      toast.error('Failed to save recipe. Perhaps it is already saved?');
+      toast.error('Failed to save recipe. Please try again.');
       console.error('Save error:', error);
     }
   };
 
-  // Better instruction formatting - handles both numbered and plain instructions
   const formatInstructions = (instructions) => {
     if (!instructions) return [];
     
     const steps = instructions.split('\n').filter(step => step.trim() !== '');
     return steps.map(step => {
-      // Remove existing numbering if present (1., 2., etc.)
       const cleanedStep = step.replace(/^\d+\.\s*/, '').trim();
       return cleanedStep;
     });
@@ -32,7 +29,6 @@ const RecipeCard = ({ recipe, userId, showSaveButton = false }) => {
   return (
     <div className="bg-slate-100 dark:bg-slate-700 rounded-lg shadow-xl p-4 sm:p-6 transition-colors duration-300">
       
-      {/* --- HEADER: Title and Description --- */}
       <div className="mb-6 text-center">
         <h2 className="text-2xl sm:text-3xl font-bold text-emerald-500 dark:text-emerald-400 mb-2">
           {recipe.title}
@@ -44,9 +40,6 @@ const RecipeCard = ({ recipe, userId, showSaveButton = false }) => {
         )}
       </div>
 
-      {/* --- MAIN CONTENT: Three sections layout --- */}
-      
-      {/* Image Section - Full width on mobile, partial on larger screens */}
       <div className="mb-6">
         {recipe.imageUrl ? (
           <img 
@@ -65,10 +58,8 @@ const RecipeCard = ({ recipe, userId, showSaveButton = false }) => {
         )}
       </div>
 
-      {/* Content Grid: Ingredients and Instructions side by side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xl:gap-8">
         
-        {/* Left Column: Ingredients */}
         <div>
           <h3 className="text-xl font-semibold mb-3 text-slate-700 dark:text-slate-200 border-b-2 border-emerald-500/50 pb-2">
             Ingredients
@@ -89,7 +80,6 @@ const RecipeCard = ({ recipe, userId, showSaveButton = false }) => {
           )}
         </div>
 
-        {/* Right Column: Instructions */}
         <div>
           <h3 className="text-xl font-semibold mb-3 text-slate-700 dark:text-slate-200 border-b-2 border-emerald-500/50 pb-2">
             Instructions
@@ -111,7 +101,6 @@ const RecipeCard = ({ recipe, userId, showSaveButton = false }) => {
         </div>
       </div>
 
-      {/* User Input Section - Full width below the grid */}
       {recipe.userInput && (
         <div className="mt-6 bg-slate-200 dark:bg-slate-600 p-4 rounded-lg">
           <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-2">
@@ -137,8 +126,7 @@ const RecipeCard = ({ recipe, userId, showSaveButton = false }) => {
         </div>
       )}
 
-      {/* --- FOOTER: Conditional Save Button --- */}
-      {showSaveButton && userId && (
+      {showSaveButton && (
         <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-600 text-center">
           <button 
             onClick={handleSave}

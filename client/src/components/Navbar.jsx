@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -11,7 +13,12 @@ const Navbar = () => {
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
-  }
+  };
+
+  const handleLogout = () => {
+    logout();
+    closeMobileMenu();
+  };
 
   return (
     <header className="bg-white dark:bg-slate-800 shadow-md sticky top-0 z-40 transition-colors duration-300">
@@ -35,23 +42,50 @@ const Navbar = () => {
             >
               Home
             </NavLink>
-            <NavLink 
-              to="/history" 
-              className={({ isActive }) => 
-                `px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-300 hover:text-emerald-500'}`
-              }
-            >
-              My History
-            </NavLink>
-            {/* --- NEW LINK ADDED --- */}
-            <NavLink 
-              to="/sync" 
-              className={({ isActive }) => 
-                `px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-300 hover:text-emerald-500'}`
-              }
-            >
-              Sync Devices
-            </NavLink>
+            
+            {isAuthenticated ? (
+              <>
+                <NavLink 
+                  to="/history" 
+                  className={({ isActive }) => 
+                    `px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-300 hover:text-emerald-500'}`
+                  }
+                >
+                  My Recipes
+                </NavLink>
+                
+                <span className="text-slate-600 dark:text-slate-300 text-sm">
+                  Hello, {user?.name}
+                </span>
+                
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-2 rounded-md text-sm font-medium text-slate-500 dark:text-slate-300 hover:text-emerald-500 transition-colors"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink 
+                  to="/login" 
+                  className={({ isActive }) => 
+                    `px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-300 hover:text-emerald-500'}`
+                  }
+                >
+                  Login
+                </NavLink>
+                <NavLink 
+                  to="/register" 
+                  className={({ isActive }) => 
+                    `px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-300 hover:text-emerald-500'}`
+                  }
+                >
+                  Sign Up
+                </NavLink>
+              </>
+            )}
+            
             <ThemeToggle />
           </div>
 
@@ -79,20 +113,41 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu, show/hide based on menu state. */}
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden" id="mobile-menu">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <NavLink to="/" onClick={closeMobileMenu} className={({isActive}) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-slate-900 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
               Home
             </NavLink>
-            <NavLink to="/history" onClick={closeMobileMenu} className={({isActive}) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-slate-900 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
-              My History
-            </NavLink>
-            {/* --- NEW LINK ADDED --- */}
-            <NavLink to="/sync" onClick={closeMobileMenu} className={({isActive}) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-slate-900 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
-              Sync Devices
-            </NavLink>
+            
+            {isAuthenticated ? (
+              <>
+                <NavLink to="/history" onClick={closeMobileMenu} className={({isActive}) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-slate-900 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
+                  My Recipes
+                </NavLink>
+                
+                <div className="px-3 py-2 text-slate-300 text-sm">
+                  Hello, {user?.name}
+                </div>
+                
+                <button 
+                  onClick={handleLogout}
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink to="/login" onClick={closeMobileMenu} className={({isActive}) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-slate-900 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
+                  Login
+                </NavLink>
+                <NavLink to="/register" onClick={closeMobileMenu} className={({isActive}) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-slate-900 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
+                  Sign Up
+                </NavLink>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -101,4 +156,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

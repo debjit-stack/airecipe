@@ -3,31 +3,23 @@ import { Link } from 'react-router-dom';
 import { getHistory, deleteRecipe } from '../api/recipeService';
 import { toast, Toaster } from 'react-hot-toast';
 import ConfirmationModal from '../components/ConfirmationModal';
-import { motion } from 'framer-motion'; // 1. Import motion
+import { motion } from 'framer-motion';
 
 const HistoryPage = () => {
   const [recipes, setRecipes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [userId, setUserId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recipeToDelete, setRecipeToDelete] = useState(null);
 
   useEffect(() => {
-    const id = localStorage.getItem('recipeRemixerUserId');
-    setUserId(id);
-    if (id) {
-      fetchHistory(id);
-    } else {
-      setIsLoading(false);
-      setError('No user ID found. Please generate a recipe first.');
-    }
+    fetchHistory();
   }, []);
 
-  const fetchHistory = async (id) => {
+  const fetchHistory = async () => {
     try {
       setIsLoading(true);
-      const data = await getHistory(id);
+      const data = await getHistory();
       setRecipes(data);
     } catch (err) {
       const errorMessage = String(err.message || err);
@@ -59,14 +51,12 @@ const HistoryPage = () => {
     }
   };
   
-  // --- Animation Variants ---
-  // 2. Define animation variants for the container and its items
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1, // This makes each child animate 0.1s after the previous one
+        staggerChildren: 0.1,
       },
     },
   };
@@ -78,7 +68,6 @@ const HistoryPage = () => {
       opacity: 1,
     },
   };
-  // ---
 
   if (isLoading) {
     return (
@@ -150,7 +139,6 @@ const HistoryPage = () => {
                 </p>
               </div>
 
-              {/* 3. Apply the animation variants to the grid container */}
               <motion.div 
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                 variants={containerVariants}
@@ -158,7 +146,6 @@ const HistoryPage = () => {
                 animate="visible"
               >
                 {recipes.map((recipe) => (
-                  // 4. Apply the item animation to each card
                   <motion.div 
                     key={recipe._id} 
                     variants={itemVariants}
@@ -236,4 +223,3 @@ const HistoryPage = () => {
 };
 
 export default HistoryPage;
-

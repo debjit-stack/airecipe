@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
 
-const recipeSchema = new mongoose.Schema(
+const recipeSchema = mongoose.Schema(
   {
-    // A unique ID to link this recipe to a specific user's history,
-    // even if they are anonymous.
-    userId: {
-      type: String,
+    // This is the key change. We are now linking to a User document.
+    user: {
+      type: mongoose.Schema.Types.ObjectId, // This stores the unique ID of a user document
       required: true,
+      ref: 'User', // This creates a formal reference to our 'User' model
     },
     title: {
       type: String,
@@ -15,7 +15,6 @@ const recipeSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-    // We store the ingredients as a flexible array of objects.
     ingredients: [
       {
         name: String,
@@ -28,7 +27,6 @@ const recipeSchema = new mongoose.Schema(
     imageUrl: {
       type: String,
     },
-    // We also store the original user input for context.
     userInput: {
       originalIngredients: [String],
       originalPreferences: String,
@@ -36,7 +34,6 @@ const recipeSchema = new mongoose.Schema(
     },
   },
   {
-    // This automatically adds `createdAt` and `updatedAt` fields.
     timestamps: true,
   }
 );
@@ -44,3 +41,4 @@ const recipeSchema = new mongoose.Schema(
 const Recipe = mongoose.model('Recipe', recipeSchema);
 
 export default Recipe;
+
