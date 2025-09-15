@@ -68,7 +68,7 @@ const RegisterPage = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-colors duration-300"
                 placeholder="Enter your full name"
                 required
               />
@@ -83,7 +83,7 @@ const RegisterPage = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-colors duration-300"
                 placeholder="Enter your email"
                 required
               />
@@ -98,7 +98,7 @@ const RegisterPage = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-colors duration-300"
                 placeholder="Create a password"
                 required
               />
@@ -113,7 +113,7 @@ const RegisterPage = () => {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-colors duration-300"
                 placeholder="Confirm your password"
                 required
               />
